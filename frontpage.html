@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat Jump Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #ffe4e1;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        canvas {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+        .message {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1.2em;
+            color: #ff69b4;
+        }
+        #gameOverMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            color: #ff69b4;
+            display: none;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="message">Press Space to Jump</div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="gameOverMessage">Game Over! <br> Press F5 to restart</div>
+    <audio id="backgroundMusic" loop>
+        <source src="https://www.example.com/your-music-file.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Load images
+        const catFrames = [
+            'https://media.giphy.com/media/3o7aD2UjO3YYer5BBu/giphy.gif'
+        ];
+
+        const obstacleImage = new Image();
+        obstacleImage.src = 'https://cdnb.artstation.com/p/assets/images/images/073/759/675/original/jefferson-s-studios-spike-collum.gif?1710410736';
+
+        // Audio setup
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        backgroundMusic.volume = 0.5;
+        backgroundMusic.play();
+
+        let currentFrame = 0;
+        let catImages = [];
+        let frameInterval = 100;
+
+        catFrames.forEach(src => {
+            const img = new Image();
+            img.src = src;
+            catImages.push(img);
+        });
+
+        catImages.forEach(img => {
+            img.onload = () => console.log('Cat frame loaded successfully.');
+            img.onerror = () => console.error('Failed to load cat frame.');
+        });
+
+        obstacleImage.onload = () => console.log('Obstacle GIF loaded successfully.');
+        obstacleImage.onerror = () => console.error('Failed to load obstacle GIF.');
+
+        const cat = {
+            x: 50,
+            y: canvas.height - 70,
+            width: 50,
+            height: 50,
+            dy: 0,
+            jumpPower: -20,
+            gravity: 0.8,
+            isJumping: false
+        };
+
+        const obstacles = [];
+        let score = 0;
+        let obstacleInterval = 2000;
+        let lastObstacleTime = 0;
+
+        function createObstacle() {
+            const height = Math.random() * 50 + 20;
+            const width = 40;
+            const obstacle = {
+                x: canvas.width,
+                y: canvas.height - height - 20,
+                width: width,
+                height: height
+            };
+            obstacles.push(obstacle);
+        }
+
+        function drawCat() {
+            ctx.drawImage(catImages[currentFrame], cat.x, cat.y, cat.width, cat.height);
+        }
+
+        function drawObstacles() {
+            obstacles.forEach(obstacle => {
+                ctx.drawImage(obstacleImage, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
+        }
+
+        function updateObstacles() {
+            obstacles.forEach(obstacle => {
+                obstacle.x -= 4;
+                if (obstacle.x + obstacle.width < 0) {
+                    obstacles.shift();
+                    score++;
+                }
+            });
+        }
+
+        function detectCollision() {
+            obstacles.forEach(obstacle => {
+                if (cat.x < obstacle.x + obstacle.width &&
+                    cat.x + cat.width > obstacle.x &&
+                    cat.y < obstacle.y + obstacle.height &&
+                    cat.y + cat.height > obstacle.y) {
+                    document.getElementById('gameOverMessage').style.display = 'block';
+                    document.removeEventListener('keydown', jumpHandler);
+                }
+            });
+        }
+
+        function gameLoop(timestamp) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (timestamp - lastObstacleTime > obstacleInterval) {
+                createObstacle();
+                lastObstacleTime = timestamp;
+            }
+
+            cat.dy += cat.gravity;
+            cat.y += cat.dy;
+
+            if (cat.y > canvas.height - cat.height) {
+                cat.y = canvas.height - cat.height;
+                cat.dy = 0;
+                cat.isJumping = false;
+            }
+
+            updateObstacles();
+            drawCat();
+            drawObstacles();
+            detectCollision();
+
+            if (timestamp % frameInterval < frameInterval / 2) {
+                currentFrame = (currentFrame + 1) % catImages.length;
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function jumpHandler(e) {
+            if (e.code === 'Space' && !cat.isJumping) {
+                cat.dy = cat.jumpPower;
+                cat.isJumping = true;
+            }
+        }
+
+        document.addEventListener('keydown', jumpHandler);
+
+        gameLoop(0);
+    </script>
+</body>
+</html>
