@@ -141,6 +141,16 @@
             bottom: 20px;
             transform: translateX(-50%); /* Center the button horizontally */
             z-index: 10;
+            transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.3s ease; /* Smooth transition for transform, shadow, and filter */
+        }
+        .pop-up-button:hover {
+            transform: translateX(-50%) scale(1.1); /* Slightly scale up on hover */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Larger shadow on hover */
+            filter: brightness(1.1); /* Brighten the button on hover */
+        }
+        .pop-up-button:active {
+            transform: translateX(-50%) scale(0.95); /* Scale down to simulate a press */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Add shadow to simulate depth */
         }
         .hide-button {
             display: none; /* Hides the button */
@@ -167,7 +177,7 @@
 
     <!-- Audio elements -->
     <audio id="click-sound" src="Audio/button.mp3"></audio>
-    <audio id="background-music" src="Audio/background.mp3" loop></audio>
+    <audio id="background-music" src="Audio/cutie.mp3" loop></audio>
 
     <script>
         function showContainers() {
@@ -188,6 +198,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
