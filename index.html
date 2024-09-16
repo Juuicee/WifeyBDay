@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Happy Birthday Quest!</title>
+    <title>Happy Birthday, Imane!</title>
     <style>
         body {
             font-family: 'Comic Sans MS', cursive, sans-serif;
-            background: linear-gradient(120deg, #ffccff, #ccffff);
+            background: url('Icons/background3.gif') no-repeat center center fixed;
+            background-size: cover;
             color: #333;
             text-align: center;
             margin: 0;
@@ -17,97 +18,186 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            background: transparent; /* Fully transparent background */
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            opacity: 0; /* Hidden by default */
+            transition: opacity 1s ease-in-out;
+        }
+        .container.show {
+            opacity: 1; /* Show container when "show" class is added */
         }
         h1 {
             font-size: 3em;
             color: #ff69b4;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
-        .quest {
-            font-size: 1.5em;
-            margin: 20px 0;
-            background: #ffffffcc;
+        .letter-container {
+            background: rgba(255, 255, 255, 0.8); /* Slightly transparent background */
             border: 2px solid #ff69b4;
-            border-radius: 10px;
+            border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            animation: glow 1.5s ease-in-out infinite alternate;
+            margin: 0 auto;
+            max-width: 80%;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            font-size: 1.2em;
+            color: #333;
+            position: relative;
+            animation: bounce 1.5s infinite alternate;
         }
-        @keyframes glow {
+        @keyframes bounce {
             from {
-                box-shadow: 0 0 10px rgba(255, 105, 180, 0.7);
+                transform: translateY(0);
             }
             to {
-                box-shadow: 0 0 25px rgba(255, 105, 180, 0.9);
+                transform: translateY(-10px);
             }
         }
-        .hint {
-            font-size: 1.2em;
-            margin: 10px 0;
-            background: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ff69b4;
+        .letter-container::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            background: url('https://img.icons8.com/ios-filled/100/ff69b4/heart.png') no-repeat center center;
+            background-size: contain;
         }
-        .hint img {
-            width: 50px;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-        .reward {
-            font-size: 1.5em;
-            margin: 20px 0;
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            border: 2px solid #ff69b4;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            color: #ff69b4;
-        }
-        .button {
-            background-color: #ff69b4;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1.2em;
-            cursor: pointer;
-            margin-top: 20px;
-            text-decoration: none;
-        }
-        .button:hover {
-            background-color: #ff1493;
-        }
-        .celebration {
+        .letter-container h2 {
             font-size: 2em;
             color: #ff69b4;
-            margin-top: 30px;
+            margin-bottom: 15px;
         }
-        .celebration img {
+        .letter-container p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .message {
+            margin-top: 40px;
+            font-size: 1.5em;
+            color: #ff69b4;
+            animation: fadeIn 2s ease-in-out, pulse 2s infinite;
+            text-shadow: 0 0 15px rgba(255, 105, 180, 0.9), 0 0 30px rgba(255, 105, 180, 0.6); /* Stronger text shadow */
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .message span {
+            display: inline-block;
+            animation: sparkle 2s infinite;
+        }
+        @keyframes sparkle {
+            0% {
+                color: #ff69b4;
+                text-shadow: 0 0 15px rgba(255, 105, 180, 0.9); /* Stronger text shadow */
+            }
+            100% {
+                color: #ffffff;
+                text-shadow: 0 0 15px rgba(255, 105, 180, 1); /* Stronger text shadow */
+            }
+        }
+        .heart {
+            font-size: 1.5em;
+            color: #ff69b4;
+            animation: heartBeat 1s infinite;
+        }
+        @keyframes heartBeat {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.2);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .pop-up-button {
+            background: url('Icons/button.png') no-repeat center center;
+            background-size: contain;
+            border: none;
             width: 100px;
+            height: 100px;
+            cursor: pointer;
+            position: fixed;
+            left: 50%;
+            bottom: 20px;
+            transform: translateX(-50%); /* Center the button horizontally */
+            z-index: 10;
+        }
+        .hide-button {
+            display: none; /* Hides the button */
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Happy Birthday, [Name]!</h1>
-        <div class="quest">
-            <p>Welcome to your special birthday quest! 🎉</p>
-            <p>To start your adventure, follow the clues and complete the tasks. Each clue will lead you closer to your birthday surprise!</p>
+        <div class="letter-container">
+            <h2>Dear Wifey Imane,</h2>
+            <p>On this special day, I want to remind you just how much you mean to me. Your presence lights up my world, and I am so grateful to have you in my life. Each moment with you is a treasure, and today, I want to make sure you know how deeply loved and cherished you are.</p>
+            <p>May your birthday be filled with joy, laughter, and all the things that make you smile. You deserve the very best forever and always. I hope this day brings you all the happiness your heart can hold, and I look forward to making more wonderful memories with you.</p>
+            <p>Here's to celebrating you today and every day. Enjoy every moment of your special day, and know that you are infinitely loved by your husband. I will always be with you in this life and our hereafter.</p>
+            <p>I LOVE YOUUUUUU,</p>
+            <p>Your Husband Alfredo</p>
         </div>
-        <div class="hint">
-            <img src="https://img.icons8.com/ios-filled/50/ff69b4/hidden.png" alt="Hint Icon">
-            <p><strong>Hint #1:</strong> Your first task is to find the hidden treasure in the garden.</p>
-        </div>
-        <a href="clue2.html" class="button">Get the Next Clue!</a>
-        <div class="reward">
-            <p>Complete all tasks and discover a special birthday gift just for you!</p>
-        </div>
-        <div class="celebration">
-            🎂🎈🎁<br>
-            <img src="https://img.icons8.com/ios-filled/50/ff69b4/party.png" alt="Party Icon">
-            🎊🥳
+        <div class="message">
+            <span>I hope you enjoyed your very own game, and this isn't the only surprise we're just getting started (:~</span>
+            <div class="heart">❤️</div>
         </div>
     </div>
+    <!-- Button for showing the containers -->
+    <button class="pop-up-button" onclick="showContainers()"></button>
+
+    <!-- Audio elements -->
+    <audio id="click-sound" src="Audio/button.mp3"></audio>
+    <audio id="background-music" src="Audio/background.mp3" loop></audio>
+
+    <script>
+        function showContainers() {
+            const container = document.querySelector('.container');
+            const button = document.querySelector('.pop-up-button');
+            const clickSound = document.getElementById('click-sound');
+            const backgroundMusic = document.getElementById('background-music');
+
+            container.classList.toggle('show');
+            button.classList.add('hide-button'); // Hide the button after click
+
+            // Play the click sound
+            clickSound.play();
+
+            // Play the background music
+            backgroundMusic.play();
+        }
+    </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
