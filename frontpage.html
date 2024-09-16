@@ -3,191 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat Jump Game</title>
+    <title>Happy Birthday, [Her Name]!</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
             background: #ffe4e1;
+            color: #333;
+            text-align: center;
             margin: 0;
             padding: 0;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
         }
-        canvas {
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+        }
+        h1 {
+            color: #ff69b4;
+            margin-top: 20px;
+            font-size: 2.5em;
+        }
+        p {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+        .heart {
+            color: #ff1493;
+            font-size: 2em;
+        }
+        .button {
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .button:hover {
+            background-color: #ff1493;
+        }
+        .image-container {
+            margin: 20px 0;
+        }
+        img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+        .letter {
+            display: none;
+            margin-top: 20px;
             background: #fff;
             border: 1px solid #ddd;
-            border-radius: 10px;
-        }
-        .message {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            font-size: 1.2em;
-            color: #ff69b4;
-        }
-        #gameOverMessage {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2em;
-            color: #ff69b4;
-            display: none;
-            background: rgba(255, 255, 255, 0.8);
+            border-radius: 5px;
             padding: 20px;
-            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
         }
-        audio {
+        .letter.show {
+            display: block;
+            opacity: 1;
+        }
+        .additional-content {
             display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        .additional-content.show {
+            display: block;
+            opacity: 1;
+        }
+        .bows {
+            width: 50px;
+            margin: 10px;
+        }
+        .interactive-content {
+            margin-top: 20px;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .interactive-content img {
+            width: 100px;
+            cursor: pointer;
+        }
+        .cat-gif {
+            width: 150px;
+            margin: 20px auto;
+            display: block;
+        }
+        .surprise-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .surprise-section img {
+            width: 120px;
+            cursor: pointer;
+        }
+        .transition-button {
+            background-color: #ff69b4;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .transition-button:hover {
+            background-color: #ff1493;
         }
     </style>
 </head>
 <body>
-    <div class="message">Press Space to Jump</div>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <div id="gameOverMessage">Game Over! <br> Press F5 to restart</div>
-    <audio id="backgroundMusic" loop>
-        <source src="https://www.example.com/your-music-file.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+    <div class="container confetti">
+        <h1>Happy Birthday, [Her Name]!</h1>
+        <p>I hope your special day is filled with joy, love, and all your favorite things.</p>
+        <div class="image-container">
+            <img src="https://www.example.com/your-special-photo.jpg" alt="Happy Birthday Image">
+        </div>
+        <p class="heart">❤️❤️❤️</p>
+        <button class="button" onclick="showLetter()">Read Your Birthday Letter</button>
+        <div class="letter" id="birthdayLetter">
+            <h2>Your Special Letter</h2>
+            <p>Dear [Her Name],</p>
+            <p>Happy Birthday to the love of my life! Every day with you is a wonderful adventure, and I am grateful for all the moments we share. You bring so much joy and light into my life, and I cherish every second with you.</p>
+            <p>May this year bring you happiness, health, and success in all your endeavors. I look forward to making more memories with you and celebrating many more birthdays together.</p>
+            <p>With all my love,</p>
+            <p>[Your Name]</p>
+            <button class="button" onclick="showAdditionalContent()">See More Surprises</button>
+        </div>
+        <div class="additional-content" id="additionalContent">
+            <h2>More Love Just for You!</h2>
+            <p>You make every day special just by being you. I’ve planned a little something extra to make today even more amazing:</p>
+            <div class="interactive-content">
+                <h3>Surprise Animation</h3>
+                <p>Click the image below to reveal a special animation!</p>
+                <img src="https://www.example.com/cat-gif.gif" alt="Click Me" id="clickImage" onclick="revealMessage()">
+                <p id="surpriseMessage" style="display: none;">Surprise! 🎉 I’ve been planning something just for you. Hope you have a wonderful birthday filled with love and laughter!</p>
+            </div>
+            <div class="surprise-section" id="surpriseSection" style="display: none;">
+                <h3>Another Surprise!</h3>
+                <p>Here’s a cute kitten to make you smile:</p>
+                <img src="https://www.example.com/cute-cat.jpg" alt="Cute Cat">
+                <p>And a lovely pink bow for you:</p>
+                <img src="https://www.example.com/pink-bow.png" alt="Pink Bow" class="bows">
+            </div>
+            <button class="transition-button" onclick="transitionToGame()">Play a Special Game</button>
+        </div>
+    </div>
+
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // Load images
-        const catFrames = [
-            'https://media.giphy.com/media/3o7aD2UjO3YYer5BBu/giphy.gif'
-        ];
-
-        const obstacleImage = new Image();
-        obstacleImage.src = 'https://cdnb.artstation.com/p/assets/images/images/073/759/675/original/jefferson-s-studios-spike-collum.gif?1710410736';
-
-        // Audio setup
-        const backgroundMusic = document.getElementById('backgroundMusic');
-        backgroundMusic.volume = 0.5;
-        backgroundMusic.play();
-
-        let currentFrame = 0;
-        let catImages = [];
-        let frameInterval = 100;
-
-        catFrames.forEach(src => {
-            const img = new Image();
-            img.src = src;
-            catImages.push(img);
-        });
-
-        catImages.forEach(img => {
-            img.onload = () => console.log('Cat frame loaded successfully.');
-            img.onerror = () => console.error('Failed to load cat frame.');
-        });
-
-        obstacleImage.onload = () => console.log('Obstacle GIF loaded successfully.');
-        obstacleImage.onerror = () => console.error('Failed to load obstacle GIF.');
-
-        const cat = {
-            x: 50,
-            y: canvas.height - 70,
-            width: 50,
-            height: 50,
-            dy: 0,
-            jumpPower: -20,
-            gravity: 0.8,
-            isJumping: false
-        };
-
-        const obstacles = [];
-        let score = 0;
-        let obstacleInterval = 2000;
-        let lastObstacleTime = 0;
-
-        function createObstacle() {
-            const height = Math.random() * 50 + 20;
-            const width = 40;
-            const obstacle = {
-                x: canvas.width,
-                y: canvas.height - height - 20,
-                width: width,
-                height: height
-            };
-            obstacles.push(obstacle);
+        function showLetter() {
+            var letter = document.getElementById('birthdayLetter');
+            letter.classList.toggle('show');
         }
 
-        function drawCat() {
-            ctx.drawImage(catImages[currentFrame], cat.x, cat.y, cat.width, cat.height);
+        function showAdditionalContent() {
+            var additionalContent = document.getElementById('additionalContent');
+            additionalContent.classList.add('show');
         }
 
-        function drawObstacles() {
-            obstacles.forEach(obstacle => {
-                ctx.drawImage(obstacleImage, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-            });
+        function revealMessage() {
+            var message = document.getElementById('surpriseMessage');
+            message.style.display = 'block';
+            var surpriseSection = document.getElementById('surpriseSection');
+            surpriseSection.style.display = 'block';
         }
 
-        function updateObstacles() {
-            obstacles.forEach(obstacle => {
-                obstacle.x -= 4;
-                if (obstacle.x + obstacle.width < 0) {
-                    obstacles.shift();
-                    score++;
-                }
-            });
+        function transitionToGame() {
+            window.location.href = 'game.html'; // Transition to the new game page
         }
-
-        function detectCollision() {
-            obstacles.forEach(obstacle => {
-                if (cat.x < obstacle.x + obstacle.width &&
-                    cat.x + cat.width > obstacle.x &&
-                    cat.y < obstacle.y + obstacle.height &&
-                    cat.y + cat.height > obstacle.y) {
-                    document.getElementById('gameOverMessage').style.display = 'block';
-                    document.removeEventListener('keydown', jumpHandler);
-                }
-            });
-        }
-
-        function gameLoop(timestamp) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (timestamp - lastObstacleTime > obstacleInterval) {
-                createObstacle();
-                lastObstacleTime = timestamp;
-            }
-
-            cat.dy += cat.gravity;
-            cat.y += cat.dy;
-
-            if (cat.y > canvas.height - cat.height) {
-                cat.y = canvas.height - cat.height;
-                cat.dy = 0;
-                cat.isJumping = false;
-            }
-
-            updateObstacles();
-            drawCat();
-            drawObstacles();
-            detectCollision();
-
-            if (timestamp % frameInterval < frameInterval / 2) {
-                currentFrame = (currentFrame + 1) % catImages.length;
-            }
-
-            requestAnimationFrame(gameLoop);
-        }
-
-        function jumpHandler(e) {
-            if (e.code === 'Space' && !cat.isJumping) {
-                cat.dy = cat.jumpPower;
-                cat.isJumping = true;
-            }
-        }
-
-        document.addEventListener('keydown', jumpHandler);
-
-        gameLoop(0);
     </script>
 </body>
 </html>

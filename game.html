@@ -3,25 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cat Jump Game</title>
+    <title>Imane's Arcade Adventure</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background: #ffe4e1;
+            background: url('Icons/kitty.jpg') no-repeat center center fixed;
+            background-size: cover;
             margin: 0;
             padding: 0;
             overflow: hidden;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             height: 100vh;
             text-align: center;
         }
+        .title {
+            font-size: 3em;
+            color: #ff69b4;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 1.5s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            }
+            to {
+                text-shadow: 0 0 20px rgba(255, 105, 180, 0.8), 0 0 30px rgba(255, 105, 180, 0.6);
+            }
+        }
         canvas {
-            background: url('https://img00.deviantart.net/d2cd/i/2015/113/e/1/cenario_8_bit_by_bahamute01-d8qr0uf.jpg') no-repeat center center;
+            background: url('Icons/background.jpg') no-repeat center center;
             background-size: cover;
-            border: 1px solid #ddd;
-            border-radius: 10px;
+            border: 10px solid #ff69b4;
+            border-radius: 20px;
+            box-shadow: 0 0 15px rgba(255, 105, 180, 0.7);
+            margin: 20px;
         }
         .message {
             position: absolute;
@@ -29,8 +51,18 @@
             left: 20px;
             font-size: 1.2em;
             color: #ff69b4;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            animation: push 1s infinite;
         }
-        #gameOverMessage {
+        @keyframes push {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+        #gameOverMessage, #gameWinMessage {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -42,161 +74,298 @@
             padding: 20px;
             border-radius: 10px;
         }
+        .progress-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 200px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar span {
+            display: block;
+            height: 100%;
+            background: #ff69b4;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            transition: width 0.3s;
+        }
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 250px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            font-size: 1em;
+            color: #ff69b4;
+            line-height: 1.4;
+        }
         audio {
             display: none;
+        }
+        #leftGif {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 150px;
+            height: auto;
+            z-index: 10;
+            transition: transform 0.3s ease;
+        }
+        #leftGif:hover {
+            animation: shake 0.5s ease-in-out infinite;
+        }
+        @keyframes shake {
+            0% { transform: translateY(-50%) translateX(0); }
+            50% { transform: translateY(-50%) translateX(-10px); }
+            100% { transform: translateY(-50%) translateX(0); }
+        }
+        .message-bubble {
+            position: absolute;
+            top: 20%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 200px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #ff69b4;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            display: none; /* Initially hidden */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            z-index: 20;
+            font-size: 1em;
+            color: #ff69b4;
         }
     </style>
 </head>
 <body>
-    <div class="message">Press Space to Jump</div>
+    <img id="leftGif" src="Icons/sheep.gif" alt="Left GIF" />
+    <div id="messageBubble" class="message-bubble">Message 1</div>
+    <div class="title">Imane's Arcade Adventure</div>
+    <div class="message">Press Space to Start the Game</div>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
     <div id="gameOverMessage">Game Over! <br> Press F5 to restart</div>
+    <div id="gameWinMessage">You Win! <br> Press F5 to restart</div>
+
+    <div class="progress-container">
+        <div class="progress-bar">
+            <span id="progressFill"></span>
+        </div>
+        <div>Items Needed: <span id="pickupsNeeded">10</span></div>
+    </div>
+
+    <div class="instructions">
+        Beat the game in any mode to unlock other surprises! 💖<br>
+        I love you, my Sweet Wife Imanee! 😘💕<br>
+        Enjoy the game and have fun! 🎉
+    </div>
+
+    <!-- Audio elements -->
     <audio id="backgroundMusic" loop>
-        <source src="https://drive.google.com/uc?export=download&id=1yMNmsz62W6LHStufkjMKiyXAz591DhsR" type="audio/mpeg">
+        <source src="Audio/pixel-rush.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
+    <audio id="jumpSound">
+        <source src="Audio/jump.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <audio id="hitSound">
+        <source src="Audio/hit.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <audio id="itemSound">
+        <source src="Audio/item.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
         // Load images
         const catFrames = [
-            'https://media.giphy.com/media/3o7aD2UjO3YYer5BBu/giphy.gif'
+            'Icons/cat.gif'
         ];
 
         const obstacleImage = new Image();
-        obstacleImage.src = 'https://cdnb.artstation.com/p/assets/images/images/073/759/675/original/jefferson-s-studios-spike-collum.gif?1710410736';
+        obstacleImage.src = 'Icons/obstacle.gif';
+
+        const itemImage = new Image();
+        itemImage.src = 'Icons/item.gif';
 
         // Audio setup
         const backgroundMusic = document.getElementById('backgroundMusic');
-        backgroundMusic.volume = 0.5; // Adjust volume (0.0 to 1.0)
-        
-        // Play audio on any user interaction
-        document.addEventListener('keydown', () => {
-            if (backgroundMusic.paused) {
-                backgroundMusic.play(); // Play music on key press
+        backgroundMusic.volume = 0.3;
+        const jumpSound = document.getElementById('jumpSound');
+        const hitSound = document.getElementById('hitSound');
+        const itemSound = document.getElementById('itemSound');
+
+        // Game state
+        let gameOver = false;
+        let gameWon = false;
+        let items = [];
+        let itemsCollected = 0;
+        const totalItemsToWin = 7;
+
+        // Initial game setup
+        let gameStarted = false;
+
+        // Message handling
+        const messages = [
+            'Message 1: Keep going!',
+            'Message 2: Great job!',
+            'Message 3: You can do it!',
+            'Message 4: Almost there!',
+            'Message 5: You\'re amazing!',
+            'Message 6: So close!',
+            'Message 7: Fantastic work!'
+        ];
+
+        let currentMessageIndex = 0;
+        const messageBubble = document.getElementById('messageBubble');
+
+        function showMessage() {
+            if (currentMessageIndex < messages.length) {
+                messageBubble.textContent = messages[currentMessageIndex];
+                messageBubble.style.display = 'block';
+                currentMessageIndex++;
+                setTimeout(() => {
+                    messageBubble.style.display = 'none';
+                }, 2000); // Show message for 2 seconds
             }
-        });
+        }
 
-        let currentFrame = 0;
-        let catImages = [];
-        let frameInterval = 100;
-
-        catFrames.forEach(src => {
-            const img = new Image();
-            img.src = src;
-            catImages.push(img);
-        });
-
-        catImages.forEach(img => {
-            img.onload = () => console.log('Cat frame loaded successfully.');
-            img.onerror = () => console.error('Failed to load cat frame.');
-        });
-
-        obstacleImage.onload = () => console.log('Obstacle GIF loaded successfully.');
-        obstacleImage.onerror = () => console.error('Failed to load obstacle GIF.');
-
+        // Cat object
         const cat = {
             x: 50,
-            y: canvas.height - 70,
+            y: canvas.height - 100,
             width: 50,
             height: 50,
-            dy: 0,
-            jumpPower: -20,
-            gravity: 0.8,
-            isJumping: false
+            image: new Image(),
+            jump: false,
+            jumpHeight: 0
         };
+        cat.image.src = catFrames[0];
 
-        const obstacles = [];
-        let score = 0;
-        let obstacleInterval = 2000;
-        let lastObstacleTime = 0;
-
-        function createObstacle() {
-            const height = Math.random() * 50 + 20;
-            const width = 40;
-            const obstacle = {
-                x: canvas.width,
-                y: canvas.height - height - 20,
-                width: width,
-                height: height
-            };
-            obstacles.push(obstacle);
-        }
-
-        function drawCat() {
-            ctx.drawImage(catImages[currentFrame], cat.x, cat.y, cat.width, cat.height);
-        }
-
-        function drawObstacles() {
-            obstacles.forEach(obstacle => {
-                ctx.drawImage(obstacleImage, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-            });
-        }
-
-        function updateObstacles() {
-            obstacles.forEach(obstacle => {
-                obstacle.x -= 4;
-                if (obstacle.x + obstacle.width < 0) {
-                    obstacles.shift();
-                    score++;
+        // Event listeners
+        document.addEventListener('keydown', (event) => {
+            if (event.key === ' ') {
+                if (!gameStarted) {
+                    startGame();
+                } else if (!gameOver && !gameWon) {
+                    cat.jump = true;
                 }
-            });
+            }
+        });
+
+        function startGame() {
+            gameStarted = true;
+            backgroundMusic.play();
+            document.getElementById('gameOverMessage').style.display = 'none';
+            document.getElementById('gameWinMessage').style.display = 'none';
+            items = [];
+            itemsCollected = 0;
+            currentMessageIndex = 0;
+            messageBubble.style.display = 'none';
+            generateItems();
+            gameLoop();
         }
 
-        function detectCollision() {
-            obstacles.forEach(obstacle => {
-                if (cat.x < obstacle.x + obstacle.width &&
-                    cat.x + cat.width > obstacle.x &&
-                    cat.y < obstacle.y + obstacle.height &&
-                    cat.y + cat.height > obstacle.y) {
-                    document.getElementById('gameOverMessage').style.display = 'block';
-                    document.removeEventListener('keydown', jumpHandler);
-                }
-            });
+        function generateItems() {
+            for (let i = 0; i < totalItemsToWin; i++) {
+                items.push({
+                    x: Math.random() * (canvas.width - 50),
+                    y: Math.random() * (canvas.height - 50),
+                    width: 50,
+                    height: 50
+                });
+            }
         }
 
-        function gameLoop(timestamp) {
+        function gameLoop() {
+            if (gameOver || gameWon) return;
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            if (timestamp - lastObstacleTime > obstacleInterval) {
-                createObstacle();
-                lastObstacleTime = timestamp;
-            }
-
-            cat.dy += cat.gravity;
-            cat.y += cat.dy;
-
-            if (cat.y > canvas.height - cat.height) {
-                cat.y = canvas.height - cat.height;
-                cat.dy = 0;
-                cat.isJumping = false;
-            }
-
-            updateObstacles();
             drawCat();
-            drawObstacles();
+            drawItems();
             detectCollision();
-
-            if (timestamp % frameInterval < frameInterval / 2) {
-                currentFrame = (currentFrame + 1) % catImages.length;
+            updateProgress();
+            if (cat.jump) {
+                cat.y -= cat.jumpHeight;
+                cat.jumpHeight += 5;
+                if (cat.jumpHeight > 50) {
+                    cat.jump = false;
+                    cat.jumpHeight = 0;
+                }
             }
+            cat.y = Math.min(canvas.height - 50, cat.y + 5);
 
             requestAnimationFrame(gameLoop);
         }
 
-        function jumpHandler(e) {
-            if (e.code === 'Space' && !cat.isJumping) {
-                cat.dy = cat.jumpPower;
-                cat.isJumping = true;
-            }
+        function drawCat() {
+            ctx.drawImage(cat.image, cat.x, cat.y, cat.width, cat.height);
         }
 
-        document.addEventListener('keydown', jumpHandler);
+        function drawItems() {
+            items.forEach(item => {
+                ctx.drawImage(itemImage, item.x, item.y, item.width, item.height);
+            });
+        }
 
-        obstacleImage.onload = () => {
-            gameLoop(0);
-        };
+        function detectCollision() {
+            items.forEach(item => {
+                if (cat.x < item.x + item.width &&
+                    cat.x + cat.width > item.x &&
+                    cat.y < item.y + item.height &&
+                    cat.y + cat.height > item.y) {
+                    itemSound.play();
+                    items.splice(items.indexOf(item), 1);
+                    itemsCollected++;
+                    showMessage(); // Show message bubble on item collection
+                    if (itemsCollected >= totalItemsToWin) {
+                        gameWon = true;
+                        document.getElementById('gameWinMessage').style.display = 'block';
+                        backgroundMusic.pause();
+                        document.removeEventListener('keydown', jumpHandler);
+                    }
+                }
+            });
+        }
+
+        function updateProgress() {
+            const progressFill = document.getElementById('progressFill');
+            const percent = (itemsCollected / totalItemsToWin) * 100;
+            progressFill.style.width = percent + '%';
+            document.getElementById('pickupsNeeded').textContent = totalItemsToWin - itemsCollected;
+        }
+
+        function jumpHandler(event) {
+            if (event.key === ' ') {
+                cat.jump = true;
+            }
+        }
     </script>
 </body>
 </html>
+
+
