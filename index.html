@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Quest!</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(120deg, #ffccff, #ccffff);
+            color: #333;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 3em;
+            color: #ff69b4;
+            margin-bottom: 10px;
+        }
+        .quest {
+            font-size: 1.5em;
+            margin: 20px 0;
+            background: #ffffffcc;
+            border: 2px solid #ff69b4;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            animation: glow 1.5s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px rgba(255, 105, 180, 0.7);
+            }
+            to {
+                box-shadow: 0 0 25px rgba(255, 105, 180, 0.9);
+            }
+        }
+        .hint {
+            font-size: 1.2em;
+            margin: 10px 0;
+            background: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ff69b4;
+        }
+        .hint img {
+            width: 50px;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        .reward {
+            font-size: 1.5em;
+            margin: 20px 0;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ff69b4;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            color: #ff69b4;
+        }
+        .button {
+            background-color: #ff69b4;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-top: 20px;
+            text-decoration: none;
+        }
+        .button:hover {
+            background-color: #ff1493;
+        }
+        .celebration {
+            font-size: 2em;
+            color: #ff69b4;
+            margin-top: 30px;
+        }
+        .celebration img {
+            width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Happy Birthday, [Name]!</h1>
+        <div class="quest">
+            <p>Welcome to your special birthday quest! 🎉</p>
+            <p>To start your adventure, follow the clues and complete the tasks. Each clue will lead you closer to your birthday surprise!</p>
+        </div>
+        <div class="hint">
+            <img src="https://img.icons8.com/ios-filled/50/ff69b4/hidden.png" alt="Hint Icon">
+            <p><strong>Hint #1:</strong> Your first task is to find the hidden treasure in the garden.</p>
+        </div>
+        <a href="clue2.html" class="button">Get the Next Clue!</a>
+        <div class="reward">
+            <p>Complete all tasks and discover a special birthday gift just for you!</p>
+        </div>
+        <div class="celebration">
+            🎂🎈🎁<br>
+            <img src="https://img.icons8.com/ios-filled/50/ff69b4/party.png" alt="Party Icon">
+            🎊🥳
+        </div>
+    </div>
+</body>
+</html>
