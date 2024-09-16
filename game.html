@@ -74,6 +74,9 @@
             padding: 20px;
             border-radius: 10px;
         }
+        #gameWinMessage {
+            animation: glow 1.5s ease-in-out infinite alternate;
+        }
         .progress-container {
             position: absolute;
             top: 20px;
@@ -103,6 +106,17 @@
             width: 0;
             transition: width 0.3s;
         }
+        .shield-container {
+            position: absolute;
+            top: 70px; /* Adjusted position to move it below the progress bar */
+            left: 20px;
+            font-size: 1.2em;
+            color: #ff69b4;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
         .instructions {
             position: absolute;
             bottom: 20px;
@@ -116,6 +130,7 @@
             font-size: 1em;
             color: #ff69b4;
             line-height: 1.4;
+            animation: glow 1.5s ease-in-out infinite alternate; /* Added glowing effect */
         }
         audio {
             display: none;
@@ -125,8 +140,8 @@
             left: 0;
             top: 50%;
             transform: translateY(-50%);
-            width: 150px;
-            height: auto;
+            width: 250px; /* Increased width */
+            height: auto; /* Maintain aspect ratio */
             z-index: 10;
             transition: transform 0.3s ease;
         }
@@ -138,39 +153,43 @@
             50% { transform: translateY(-50%) translateX(-10px); }
             100% { transform: translateY(-50%) translateX(0); }
         }
-        .message-bubble {
+        #continueButton, #skipButton {
             position: absolute;
-            top: 20%;
-            left: 0;
+            top: 50%;
             transform: translateY(-50%);
-            width: 200px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid #ff69b4;
-            border-radius: 10px;
-            padding: 10px;
-            text-align: center;
-            display: none; /* Initially hidden */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-            z-index: 20;
-            font-size: 1em;
-            color: #ff69b4;
+            width: 100px; /* Adjust size as needed */
+            height: auto;
+            display: none; /* Hidden initially */
+            z-index: 10;
+            cursor: pointer;
+        }
+        #continueButton {
+            right: 20px; /* Position Continue button on the right */
+        }
+        #skipButton {
+            left: 20px; /* Always visible on the left */
+            display: none; /* Always visible */
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script> <!-- Include canvas-confetti -->
 </head>
 <body>
     <img id="leftGif" src="Icons/sheep.gif" alt="Left GIF" />
-    <div id="messageBubble" class="message-bubble">Message 1</div>
     <div class="title">Imane's Arcade Adventure</div>
     <div class="message">Press Space to Start the Game</div>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <div id="gameOverMessage">Game Over! <br> Press F5 to restart</div>
-    <div id="gameWinMessage">You Win! <br> Press F5 to restart</div>
+    <div id="gameOverMessage">YOU GOT THIS MY LOVE! <br> Press F5 to restart<3</div>
+    <div id="gameWinMessage">GOOD JOB BABYYY U DID IT! <br> PRESS ON THE ARROW <3</div>
 
     <div class="progress-container">
         <div class="progress-bar">
             <span id="progressFill"></span>
         </div>
-        <div>Items Needed: <span id="pickupsNeeded">10</span></div>
+        <div>Collect Flowers: <span id="pickupsNeeded">4</span></div>
+    </div>
+
+    <div class="shield-container">
+        Shields: <span id="shieldCount">0</span>
     </div>
 
     <div class="instructions">
@@ -178,6 +197,12 @@
         I love you, my Sweet Wife Imanee! 😘💕<br>
         Enjoy the game and have fun! 🎉
     </div>
+
+    <!-- Continue button for the game win -->
+    <img id="continueButton" src="Icons/arrow.gif" alt="Continue" onclick="handleContinueClick()" />
+
+    <!-- Skip button for the game -->
+    <img id="skipButton" src="Icons/skip.png" alt="Skip" onclick="handleSkipClick()" />
 
     <!-- Audio elements -->
     <audio id="backgroundMusic" loop>
@@ -200,15 +225,13 @@
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
+        const skipButton = document.getElementById('skipButton');
+        const continueButton = document.getElementById('continueButton');
 
         // Load images
-        const catFrames = [
-            'Icons/cat.gif'
-        ];
-
+        const catFrames = ['Icons/cat.gif'];
         const obstacleImage = new Image();
         obstacleImage.src = 'Icons/obstacle.gif';
-
         const itemImage = new Image();
         itemImage.src = 'Icons/item.gif';
 
@@ -224,106 +247,112 @@
         let gameWon = false;
         let items = [];
         let itemsCollected = 0;
-        const totalItemsToWin = 7;
+        const totalItemsToWin = 4;
+        let shields = 0; // Added shield counter
+        let shieldActive = false; // Track shield status
+        let shieldEndTime = 0; // Time when shield effect should end
 
         // Initial game setup
         let gameStarted = false;
 
-        // Message handling
-        const messages = [
-            'Message 1: Keep going!',
-            'Message 2: Great job!',
-            'Message 3: You can do it!',
-            'Message 4: Almost there!',
-            'Message 5: You\'re amazing!',
-            'Message 6: So close!',
-            'Message 7: Fantastic work!'
-        ];
-
-        let currentMessageIndex = 0;
-        const messageBubble = document.getElementById('messageBubble');
-
-        function showMessage() {
-            if (currentMessageIndex < messages.length) {
-                messageBubble.textContent = messages[currentMessageIndex];
-                messageBubble.style.display = 'block';
-                currentMessageIndex++;
-                setTimeout(() => {
-                    messageBubble.style.display = 'none';
-                }, 2000); // Show message for 2 seconds
+        function startGame() {
+            if (!gameStarted) {
+                gameStarted = true;
+                document.removeEventListener('keydown', startGame);
+                document.addEventListener('keydown', jumpHandler);
+                gameLoop(0);
+                backgroundMusic.play();
+                skipButton.style.display = 'none'; // Show skip button when game starts
             }
         }
 
-        // Cat object
-        const cat = {
-            x: 50,
-            y: canvas.height - 100,
-            width: 50,
-            height: 50,
-            image: new Image(),
-            jump: false,
-            jumpHeight: 0
-        };
-        cat.image.src = catFrames[0];
-
-        // Event listeners
-        document.addEventListener('keydown', (event) => {
-            if (event.key === ' ') {
-                if (!gameStarted) {
-                    startGame();
-                } else if (!gameOver && !gameWon) {
-                    cat.jump = true;
-                }
+        document.addEventListener('keydown', (e) => {
+            if (!gameStarted && e.code === 'Space') {
+                startGame();
             }
         });
 
-        function startGame() {
-            gameStarted = true;
-            backgroundMusic.play();
-            document.getElementById('gameOverMessage').style.display = 'none';
-            document.getElementById('gameWinMessage').style.display = 'none';
-            items = [];
-            itemsCollected = 0;
-            currentMessageIndex = 0;
-            messageBubble.style.display = 'none';
-            generateItems();
-            gameLoop();
+        let currentFrame = 0;
+        let catImages = [];
+        let frameInterval = 100;
+
+        catFrames.forEach(src => {
+            const img = new Image();
+            img.src = src;
+            catImages.push(img);
+        });
+
+        catImages.forEach(img => {
+            img.onload = () => console.log('Cat frame loaded successfully.');
+            img.onerror = () => console.error('Failed to load cat frame.');
+        });
+
+        obstacleImage.onload = () => console.log('Obstacle GIF loaded successfully.');
+        obstacleImage.onerror = () => console.error('Failed to load obstacle GIF.');
+
+        itemImage.onload = () => console.log('Item image loaded successfully.');
+        itemImage.onerror = () => console.error('Failed to load item image.');
+
+        const cat = {
+            x: 50,
+            y: canvas.height - 70,
+            width: 50,
+            height: 50,
+            dy: 0,
+            jumpPower: -20,
+            gravity: 0.8,
+            isJumping: false
+        };
+
+        const obstacles = [];
+        let score = 0;
+        let obstacleInterval = 2000;
+        let lastObstacleTime = 0;
+        let itemInterval = 5000;
+        let lastItemTime = 0;
+
+        function createObstacle() {
+            const height = Math.random() * 50 + 20;
+            const width = 40;
+            const obstacle = {
+                x: canvas.width,
+                y: canvas.height - height - 20,
+                width: width,
+                height: height
+            };
+            obstacles.push(obstacle);
         }
 
-        function generateItems() {
-            for (let i = 0; i < totalItemsToWin; i++) {
-                items.push({
-                    x: Math.random() * (canvas.width - 50),
-                    y: Math.random() * (canvas.height - 50),
-                    width: 50,
-                    height: 50
+        function createItem() {
+            const width = 30;
+            const height = 30;
+            let x, y, overlaps;
+            do {
+                x = canvas.width + Math.random() * 300;
+                y = canvas.height - height - 20;
+                overlaps = obstacles.some(obstacle => {
+                    return !(x + width < obstacle.x || x > obstacle.x + obstacle.width || y + height < obstacle.y || y > obstacle.y + obstacle.height);
                 });
-            }
-        }
-
-        function gameLoop() {
-            if (gameOver || gameWon) return;
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawCat();
-            drawItems();
-            detectCollision();
-            updateProgress();
-            if (cat.jump) {
-                cat.y -= cat.jumpHeight;
-                cat.jumpHeight += 5;
-                if (cat.jumpHeight > 50) {
-                    cat.jump = false;
-                    cat.jumpHeight = 0;
-                }
-            }
-            cat.y = Math.min(canvas.height - 50, cat.y + 5);
-
-            requestAnimationFrame(gameLoop);
+            } while (overlaps);
+            const item = {
+                x: x,
+                y: y,
+                width: width,
+                height: height
+            };
+            items.push(item);
         }
 
         function drawCat() {
-            ctx.drawImage(cat.image, cat.x, cat.y, cat.width, cat.height);
+            if (catImages.length > 0) {
+                ctx.drawImage(catImages[currentFrame], cat.x, cat.y, cat.width, cat.height);
+            }
+        }
+
+        function drawObstacles() {
+            obstacles.forEach(obstacle => {
+                ctx.drawImage(obstacleImage, obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+            });
         }
 
         function drawItems() {
@@ -332,7 +361,41 @@
             });
         }
 
+        function updateObstacles() {
+            obstacles.forEach(obstacle => {
+                obstacle.x -= 4;
+                if (obstacle.x + obstacle.width < 0) {
+                    obstacles.shift();
+                    score++;
+                }
+            });
+        }
+
+        function updateItems() {
+            items.forEach(item => {
+                item.x -= 4;
+                if (item.x + item.width < 0) {
+                    items.shift();
+                }
+            });
+        }
+
         function detectCollision() {
+            obstacles.forEach(obstacle => {
+                if (!shieldActive &&
+                    cat.x < obstacle.x + obstacle.width &&
+                    cat.x + cat.width > obstacle.x &&
+                    cat.y < obstacle.y + obstacle.height &&
+                    cat.y + cat.height > obstacle.y) {
+                    hitSound.play();
+                    gameOver = true;
+                    document.getElementById('gameOverMessage').style.display = 'block';
+                    backgroundMusic.pause();
+                    document.removeEventListener('keydown', jumpHandler);
+                    skipButton.style.display = 'none'; // Hide skip button on game over
+                }
+            });
+
             items.forEach(item => {
                 if (cat.x < item.x + item.width &&
                     cat.x + cat.width > item.x &&
@@ -341,31 +404,141 @@
                     itemSound.play();
                     items.splice(items.indexOf(item), 1);
                     itemsCollected++;
-                    showMessage(); // Show message bubble on item collection
+                    shields++; // Get a shield
+                    updateShieldCounter();
+                    activateShield(); // Activate shield effect
                     if (itemsCollected >= totalItemsToWin) {
                         gameWon = true;
                         document.getElementById('gameWinMessage').style.display = 'block';
+                        continueButton.style.display = 'block'; // Show continue button
+                        skipButton.style.display = 'none'; // Hide skip button on game win
                         backgroundMusic.pause();
                         document.removeEventListener('keydown', jumpHandler);
+                        // Trigger confetti effect
+                        confetti();
                     }
                 }
             });
         }
 
-        function updateProgress() {
+        function updateProgressBar() {
             const progressFill = document.getElementById('progressFill');
-            const percent = (itemsCollected / totalItemsToWin) * 100;
-            progressFill.style.width = percent + '%';
-            document.getElementById('pickupsNeeded').textContent = totalItemsToWin - itemsCollected;
+            const pickupsNeeded = document.getElementById('pickupsNeeded');
+            const progressPercentage = (itemsCollected / totalItemsToWin) * 100;
+            progressFill.style.width = `${progressPercentage}%`;
+            pickupsNeeded.textContent = totalItemsToWin - itemsCollected;
         }
 
-        function jumpHandler(event) {
-            if (event.key === ' ') {
-                cat.jump = true;
+        function updateShieldCounter() {
+            document.getElementById('shieldCount').textContent = shields;
+        }
+
+        function activateShield() {
+            shieldActive = true;
+            shieldEndTime = Date.now() + 2000; // Shield lasts for 2 seconds
+            setTimeout(() => {
+                shieldActive = false;
+            }, 2000);
+        }
+
+        function gameLoop(timestamp) {
+            if (gameOver || gameWon) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (timestamp - lastObstacleTime > obstacleInterval) {
+                createObstacle();
+                lastObstacleTime = timestamp;
+            }
+
+            if (timestamp - lastItemTime > itemInterval) {
+                createItem();
+                lastItemTime = timestamp;
+            }
+
+            cat.dy += cat.gravity;
+            cat.y += cat.dy;
+
+            if (cat.y > canvas.height - cat.height) {
+                cat.y = canvas.height - cat.height;
+                cat.dy = 0;
+                cat.isJumping = false;
+            }
+
+            updateObstacles();
+            updateItems();
+            detectCollision();
+            drawCat();
+            drawObstacles();
+            drawItems();
+            updateProgressBar();
+
+            if (timestamp % frameInterval < frameInterval / 2) {
+                currentFrame = (currentFrame + 1) % catImages.length;
+            }
+
+            if (shieldActive && Date.now() > shieldEndTime) {
+                shieldActive = false;
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function jumpHandler(e) {
+            if (e.code === 'Space' && !cat.isJumping && !gameOver && !gameWon) {
+                cat.dy = cat.jumpPower;
+                cat.isJumping = true;
+                jumpSound.play();
+            }
+        }
+
+        function handleContinueClick() {
+            // Page transition logic
+            window.location.href = 'nextPage.html'; // Replace with the URL of the page you want to transition to
+        }
+
+        function handleSkipClick() {
+            // Skip logic
+            if (gameOver || gameWon) {
+                // For game over or win, we just restart the page
+                location.reload();
+            } else {
+                // If game is in progress, provide some feedback or end the game
+                alert('Skipping game is not allowed while playing.');
+            }
+        }
+
+        function confetti() {
+            const colors = ['#ff69b4', '#ff1493', '#ff4500', '#32cd32', '#1e90ff'];
+            for (let i = 0; i < 100; i++) {
+                const confettiElement = document.createElement('div');
+                confettiElement.style.position = 'absolute';
+                confettiElement.style.width = '10px';
+                confettiElement.style.height = '10px';
+                confettiElement.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confettiElement.style.top = Math.random() * window.innerHeight + 'px';
+                confettiElement.style.left = Math.random() * window.innerWidth + 'px';
+                confettiElement.style.borderRadius = '50%';
+                confettiElement.style.zIndex = '1000';
+                document.body.appendChild(confettiElement);
+
+                let fallSpeed = Math.random() * 5 + 2;
+                let horizontalSpeed = Math.random() * 2 - 1;
+
+                function animateConfetti() {
+                    confettiElement.style.top = parseFloat(confettiElement.style.top) + fallSpeed + 'px';
+                    confettiElement.style.left = parseFloat(confettiElement.style.left) + horizontalSpeed + 'px';
+
+                    if (parseFloat(confettiElement.style.top) > window.innerHeight) {
+                        confettiElement.remove();
+                    } else {
+                        requestAnimationFrame(animateConfetti);
+                    }
+                }
+
+                animateConfetti();
             }
         }
     </script>
 </body>
 </html>
-
-
